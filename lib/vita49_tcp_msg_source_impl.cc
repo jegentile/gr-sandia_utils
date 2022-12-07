@@ -15,7 +15,7 @@
 #include <gnuradio/io_signature.h>
 #include <gnuradio/sandia_utils/constants.h>
 #include <arpa/inet.h>
-#include <endian.h>
+#include <machine/endian.h>
 
 namespace gr
 {

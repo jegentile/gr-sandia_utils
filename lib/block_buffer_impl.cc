@@ -16,7 +16,6 @@
 #include <gnuradio/block_detail.h>
 #include <gnuradio/buffer.h>
 #include <gnuradio/io_signature.h>
-
 namespace gr {
 namespace sandia_utils {
 
@@ -156,8 +155,10 @@ int block_buffer_impl::general_work(int noutput_items,
         }
 
         // read as much as we can into the current buffer
-        size_t to_read =
-            std::min((size_t)(ninput_items[0] - in_idx), d_nsamples - d_read_idx);
+        size_t to_read = (size_t)(ninput_items[0] - in_idx);
+        if (to_read >  d_nsamples - d_read_idx){
+           to_read = d_nsamples - d_read_idx;
+        }
 
 
         // update current rate
@@ -310,13 +311,23 @@ int block_buffer_impl::general_work(int noutput_items,
             }
 
             // number of samples skipped since the last buffer written
-            int64_t numsamples_skipped =
+            /*
+		int64_t numsamples_skipped =
                 (d_buf[d_writing].abs_read_idx == 0)
                     ? 0
                     : std::max(d_buf[d_writing].abs_read_idx - d_last_abs_read_idx -
                                    d_nsamples,
                                0lu);
+		*/
 
+		int64_t numsamples_skipped = 0;
+		if(d_buf[d_writing].abs_read_idx != 0){
+   			numsamples_skipped = d_buf[d_writing].abs_read_idx - d_last_abs_read_idx - d_nsamples;
+   			if(numsamples_skipped < 0lu){
+   				numsamples_skipped = 0lu;
+   			}                               
+		}
+    
             // if there's not already an rx_time tag, and some samples were skipped,
             // estimate and add an rx_time tag
             if (pmt::eqv(d_buf[d_writing].rx_time, pmt::PMT_NIL) &&
@@ -352,8 +363,10 @@ int block_buffer_impl::general_work(int noutput_items,
         }
 
         // write as much as we can from the current buffer
-        size_t to_write = std::min((size_t)(noutput_items - d_nreserved - out_idx),
-                                   d_nsamples - d_write_idx);
+        size_t to_write = (size_t)(noutput_items - d_nreserved - out_idx);
+        if(to_write > d_nsamples - d_write_idx){
+        	to_write = d_nsamples - d_write_idx;
+	}
 
         // write from buffer
         char* dst = static_cast<char*>(output_items[0]) + d_itemsize * out_idx;

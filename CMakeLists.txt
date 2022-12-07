@@ -17,7 +17,7 @@ set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
 cmake_minimum_required(VERSION 3.8)
 project(gr-sandia_utils CXX C)
 enable_testing()
-
+find_package (Boost REQUIRED COMPONENTS unit_test_framework)
 # Install to PyBOMBS target prefix if defined
 if(DEFINED ENV{PYBOMBS_PREFIX})
     set(CMAKE_INSTALL_PREFIX $ENV{PYBOMBS_PREFIX})
@@ -35,6 +35,7 @@ set(VERSION_MAJOR 3)
 set(VERSION_API   10)
 set(VERSION_ABI   0)
 set(VERSION_PATCH git)
+set(CMAKE_CXX_STANDARD 23)
 # cmake-format: on
 
 cmake_policy(SET CMP0011 NEW)
